@@ -60,6 +60,7 @@ h2 {
   clear: both;
   overflow: hidden;
   margin: 20px -7px 0;
+  
 }
 
 .dif-options div {
@@ -119,6 +120,7 @@ h2 {
   background-color: #593f6b;
   color: #fff;
   cursor: pointer;
+  
 }
 
 .start button:focus {
@@ -236,4 +238,16 @@ h2 {
     animation-timing-function: ease-out;
     transform: translateY(0);
   }
+}
+.vs_ button {
+    display: block;
+    width: 100%;
+    padding: 2px 12px 4px;
+    font-family: inherit;
+    font-size: 24px;
+    border: solid 2px #ccc;
+    border-radius: 8px;
+    background-color: #593f6b;
+    color: #fff;
+    cursor: pointer;
 }

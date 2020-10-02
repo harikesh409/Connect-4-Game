@@ -115,6 +115,9 @@ self.addEventListener('message', function(e) {
     case 'computer-move':
       makeComputerMove(e.data.maxDepth);
       break;
+    case 'player2-move':
+      player2move(e.data.col,e.data.gamemode);
+      break;
   }
 }, false);
 
@@ -234,3 +237,47 @@ function think(node, player, recursionsRemaining, isTopLevel) {
   var moveCol = candidates[Math.floor(Math.random() * candidates.length)];
   return moveCol;
 }
+
+// player 2 handlers
+function player2move(col,gamemode) {
+  
+  var isWinImminent = false;
+  var isLossImminent = false;
+  var origin = new GameState(currentGameState);
+  
+  
+    // fun recursive AI stuff kicks off here
+    
+    if (origin.score === HUMAN_WIN_SCORE) {
+      // AI realizes it can lose, thinks all moves suck now, keep move picked at previous depth
+      // this solves the "apathy" problem
+      isLossImminent = true;
+     
+    } else if (origin.score === COMPUTER_WIN_SCORE) {
+      // AI knows how to win, no need to think deeper, use this move
+      // this solves the "cocky" problem
+      
+      isWinImminent = true;
+      
+    } else {
+      // go with this move, for now at least
+      
+    }
+  
+  var coords = currentGameState.makeMove(2, col);
+  var isWin = currentGameState.isWin();
+  var winningChips = currentGameState.winningChips;
+  var isBoardFull = currentGameState.isBoardFull();
+  
+  self.postMessage({
+    messageType: 'player2-move-done',
+    coords: coords,
+    isWin: isWin,
+    winningChips: winningChips,
+    isBoardFull: isBoardFull,
+    isWinImminent: isWinImminent,
+    isLossImminent: isLossImminent
+  });
+}
+
+
