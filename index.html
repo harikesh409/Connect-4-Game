@@ -16,8 +16,14 @@
       <div class="sidebar">
         <h1>Connect 4</h1>
         <div class="panel dif">
-          <h2>Difficulty</h2>
-          <div class="dif-options">
+          <h2 class="dif_h2"></h2>
+          <div class="vs_">
+            <button id="vs_c">Vs Computer</button>
+          </div>
+          <div class="vs_">
+            <button id="vs_h">2 Players</button>
+          </div>
+          <div class="dif-options" style="visibility: hidden;display: none;">
             <div>
               <input id="dif1" type="radio" name="dif-options" value="1">
               <label for="dif1">1</label>
@@ -39,8 +45,11 @@
               <label for="dif5">5</label>
             </div>
           </div>
-          <div class="start">
+          <div class="start" style="visibility: hidden;display: none;">
             <button>Start Game</button>
+          </div>
+          <div class="start" style="visibility: hidden;display: none;">
+            <button id="#vs_h_btn">Start Game</button>
           </div>
         </div>
         <div class="panel info">
