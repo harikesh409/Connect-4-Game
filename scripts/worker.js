@@ -13,6 +13,7 @@ var GameState = function(cloneGameState) {
   this.board = [];
   this.score = NO_WIN_SCORE;
   this.winningChips = undefined;
+  this.issam = "chi haja"
   
   // initialize an empty board
   for(var col = 0; col < TOTAL_COLUMNS; col++) {
@@ -100,6 +101,24 @@ GameState.prototype.getPlayerForChipAt = function(col, row) {
   return player;
 }
 GameState.prototype.isWin = function() {
+  
+  switch(this.score){
+    case 4:
+      
+      self.postMessage({
+        messageType:"gameState",
+        GameStatex:"Player 2 [Red] Won"
+      })
+      break;
+    case -4:
+      
+      self.postMessage({
+        messageType:"gameState",
+        GameStatex:"Player 1 [Green] Won"
+      })
+    break;
+  }
+
   return (this.score === HUMAN_WIN_SCORE || this.score === COMPUTER_WIN_SCORE);
 }
 
@@ -113,7 +132,7 @@ self.addEventListener('message', function(e) {
       makeHumanMove(e.data.col);
       break;
     case 'computer-move':
-      makeComputerMove(e.data.maxDepth);
+      makeComputerMove(e.data.col);
       break;
   }
 }, false);
@@ -124,6 +143,7 @@ function resetGame() {
   self.postMessage({
     messageType: 'reset-done'
   });
+  
 }
 
 function makeHumanMove(col) {
@@ -141,32 +161,30 @@ function makeHumanMove(col) {
   });
 }
 
-function makeComputerMove(maxDepth) {
-  var col;
+function makeComputerMove(col) {
+  
   var isWinImminent = false;
   var isLossImminent = false;
-  for (var depth = 0; depth <= maxDepth; depth++) {
-    var origin = new GameState(currentGameState);
-    var isTopLevel = (depth === maxDepth);
-    
+  var origin = new GameState(currentGameState);
+  
+  
     // fun recursive AI stuff kicks off here
-    var tentativeCol = think(origin, 2, depth, isTopLevel);
+    
     if (origin.score === HUMAN_WIN_SCORE) {
       // AI realizes it can lose, thinks all moves suck now, keep move picked at previous depth
       // this solves the "apathy" problem
       isLossImminent = true;
-      break;
+     
     } else if (origin.score === COMPUTER_WIN_SCORE) {
       // AI knows how to win, no need to think deeper, use this move
       // this solves the "cocky" problem
-      col = tentativeCol;
+      
       isWinImminent = true;
-      break;
+      
     } else {
       // go with this move, for now at least
-      col = tentativeCol;
+      
     }
-  }
   
   var coords = currentGameState.makeMove(2, col);
   var isWin = currentGameState.isWin();

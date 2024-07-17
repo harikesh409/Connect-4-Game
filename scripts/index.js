@@ -52,12 +52,15 @@ $(function() {
         endHumanTurn(e.data.coords, e.data.isWin, e.data.winningChips, e.data.isBoardFull);
         break;
       case 'progress':
-        updateComputerTurn(e.data.col);
+        startComputerTurn();
         break;
       case 'computer-move-done':
         endComputerTurn(e.data.coords, e.data.isWin, e.data.winningChips, e.data.isBoardFull,
           e.data.isWinImminent, e.data.isLossImminent);
         break;
+      case 'gameState':
+          alert(e.data.GameStatex)
+      break
     }
   }, false);
 });
@@ -89,6 +92,7 @@ function startGame() {
 }
 
 function startHumanTurn() {
+  
   setBlurb('p1-turn');
   $('.click-columns div').addClass('hover');
   
@@ -96,6 +100,7 @@ function startHumanTurn() {
   var col = $('.click-columns div:hover').index();
   if(col !== -1) {
     createCursorChip(1, col);
+    
   }
   
   $('.click-columns')
@@ -143,43 +148,61 @@ function endHumanTurn(coords, isWin, winningChips, isBoardFull) {
 }
 
 function startComputerTurn() {
-  setBlurb('p2-turn');
+  setBlurb('p1-turn');
+  $('.click-columns div').addClass('hover');
   
-  // computer's cursor chip starts far left and moves right as it thinks
-  createCursorChip(2, 0);
+  // if mouse is already over a column, show cursor chip there
+  var col = $('.click-columns div:hover').index();
+  if(col !== -1) {
+    createCursorChip(2, col);
+  }
   
-  var maxDepth = parseInt($('input[name=dif-options]:checked').val(), 10) + 1;
-  worker.postMessage({
-    messageType: 'computer-move',
-    maxDepth: maxDepth
-  });
+  $('.click-columns')
+    .on('mouseenter', function() {
+      var col = $('.click-columns div:hover').index();
+      createCursorChip(2, col);
+    })
+    .on('mouseleave', function() {
+      destroyCursorChip();
+    });
+  
+  $('.click-columns div')
+    .on('mouseenter', function() {
+      var col = $(this).index();
+      moveCursorChip(col);
+    })
+    .on('click', function() {
+      $('.click-columns, .click-columns div').off();
+      
+      var col = $(this).index();
+      worker.postMessage({
+        messageType: 'computer-move',
+        col: col
+      });
+    });  
 }
 
 function updateComputerTurn(col) {
   moveCursorChip(col);
 }
 
-function endComputerTurn(coords, isWin, winningChips, isBoardFull, isWinImminent, isLossImminent) {
-  moveCursorChip(coords.col, function() {
+function endComputerTurn(coords, isWin, winningChips, isBoardFull) {
+  $('.click-columns div').removeClass('hover');
+  if(!coords) {
+    // column was full, human goes again
+    startHumanTurn();    
+  } else {
     dropCursorChip(coords.row, function() {
-      if (isWin) {
-        endGame('p2-win', winningChips);
-      } else if (isBoardFull) {
+      if(isWin) {
+        endGame('p1-win', winningChips);
+      } else if(isBoardFull) {
         endGame('tie');
       } else {
-        if(isWinImminent) {
-          setOutlook('win-imminent');
-        } else if (isLossImminent) {
-          setOutlook('loss-imminent');
-        } else {
-          setOutlook();
-        }
-        
-        // pass turn to human
+        // pass turn to computer
         startHumanTurn();
       }
     });
-  });
+  }
 }
 
 function endGame(blurbKey, winningChips) {
